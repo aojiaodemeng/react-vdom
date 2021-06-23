@@ -1,5 +1,5 @@
 import TReact from "./TReact";
-
+const root = document.getElementById("root");
 const virtualDOM = (
   <div className="container">
     <h1>你好 Tiny React</h1>
@@ -17,5 +17,5 @@ const virtualDOM = (
     <input type="text" value="13" />
   </div>
 );
-
 console.log(virtualDOM);
+TReact.render(virtualDOM, root);

@@ -66,3 +66,117 @@ console.log(virtualDOM);
 这是因为在执行到“console.log(virtualDOM);”这行代码时，由于 babel 的设置，每一个 jsx 元素都会去调用 TReact.createElement 方法，这个方法会返回一个 VDom 对象：
 
 <img src="./images/step1-2.jpg"/>
+
+# 二. 完善 CreateElement 方法，在创建 VDom 过程中把文本字符串转换成对象类型
+
+转换过程中需要注意布尔值节点和 null 值节点
+
+```
+export default function createElement(type, props, ...children) {
+  const childElement = [].concat(...children).map((child) => {
+    if (child instanceof Object) {
+      return child;
+    } else {
+      return createElement("text", { textContent: child });
+    }
+  });
+  return {
+    type,
+    props,
+    children: childElement,
+  };
+}
+```
+
+<img src="./images/step1-3.jpg"/>
+
+# 三、将 VDom 转换成真实 Dom，并渲染
+
+## 1.在 html 文件中创建父级元素
+
+```
+<!DOCTYPE html>
+<html lang="en">
+   ...
+   <body>
++    <div id="root"></div>
+   </body>
+</html>
+```
+
+## 2.创建外部方法 render 以及 内部方法 diff、mountElement、 mountNativeElement
+
+### 2-1.创建 TReact/render.js 文件，方法的作用就是将 VDom 转换成虚拟 dom
+
+TReact/render.js
+
+```
+import diff from "./diff";
+export default function render(virtualDOM, container, oldDOM) {
+  diff(virtualDOM, container, oldDOM);
+}
+```
+
+在 src/index.js 文件中调用 render 方法。
+
+```
+  import TReact from "./TReact";
++ const root = document.getElementById("root");
+  const virtualDOM = (...);
+  console.log(virtualDOM);
++ TReact.render(virtualDOM, root);
+```
+
+### 2-2.创建内部方法 diff、mountElement、 mountNativeElement
+
+TReact/diff.js
+
+```
+import mountElement from "./mountElement";
+export default function diff(virtualDOM, container, oldDOM) {
+  // 判断oldDOM是否存在
+  if (!oldDOM) {
+    mountElement(virtualDOM, container);
+  }
+}
+```
+
+TReact/mountElement.js
+
+```
+import mountNativeElement from "./mountNativeElement";
+
+export default function mountElement(virtualDOM, container) {
+  // Component VS NativeElement
+  mountNativeElement(virtualDOM, container);
+}
+
+```
+
+TReact/mountNativeElement.js
+
+```
+import mountElement from "./mountElement";
+
+export default function mountNativeElement(virtualDOM, container) {
+  let newElement = null;
+  if (virtualDOM.type === "text") {
+    // 文本节点
+    newElement = document.createTextNode(virtualDOM.props.textContent);
+  } else {
+    // 元素节点
+    newElement = document.createElement(virtualDOM.type);
+  }
+
+  // 递归创建子节点
+  virtualDOM.children.forEach((child) => {
+    mountElement(child, newElement);
+  });
+  console.log(newElement);
+  // 将转换之后的DOM对象放置在页面中
+  container.appendChild(newElement);
+}
+
+```
+
+此时，jsx 元素已经可以显示在页面中了。
