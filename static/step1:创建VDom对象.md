@@ -180,3 +180,47 @@ export default function mountNativeElement(virtualDOM, container) {
 ```
 
 此时，jsx 元素已经可以显示在页面中了。
+
+# 三、为 DOM 对象添加属性
+
+## 1.创建 TReact/updateNodeElement.js 文件
+
+```
+export default function updateNodeElement(newElement, virtualDOM) {
+  // 获取节点对应的属性对象
+  const newProps = virtualDOM.props;
+  Object.keys(newProps).forEach((propName) => {
+    // 获取属性值
+    const newPropsValue = newProps[propName];
+    // 判断属性是否是事件属性 onClick => click
+    if (propName.slice(0, 2) === "on") {
+      // 事件名称
+      const eventName = propName.toLocaleLowerCase().slice(2);
+      // 为元素添加事件
+      newElement.addEventListener(eventName, newPropsValue);
+    } else if (propName === "value" || propName === "checked") {
+      newElement[propName] = newPropsValue;
+    } else if (propName !== "children") {
+      if (propName === "className") {
+        newElement.setAttribute("class", newPropsValue);
+      } else {
+        newElement.setAttribute(propName, newPropsValue);
+      }
+    }
+  });
+}
+```
+
+## 2.在创建元素节点之后，调用 updateNodeElement 方法，为 DOM 添加属性
+
+```
++ import updateNodeElement from "./updateNodeElement";
+  export default function createDOMElement(virtualDOM) {
+    if (virtualDOM.type === "text") {...} else {
+      // 元素节点
+      newElement = document.createElement(virtualDOM.type);
+      // 为元素添加属性
++     updateNodeElement(newElement, virtualDOM);
+    }
+  }
+```
