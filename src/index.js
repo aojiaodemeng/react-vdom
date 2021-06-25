@@ -17,5 +17,21 @@ const virtualDOM = (
     <input type="text" value="13" />
   </div>
 );
-console.log(virtualDOM);
-TReact.render(virtualDOM, root);
+
+// 函数组件
+function Heart(props) {
+  return (
+    <div>
+      {props.title}
+      &hearts;
+      <Demo />
+    </div>
+  );
+}
+
+// 函数组件
+function Demo() {
+  return <div>Demo</div>;
+}
+
+TReact.render(<Heart title="hello title" />, root);

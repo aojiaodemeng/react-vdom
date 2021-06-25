@@ -1,4 +1,3 @@
-import mountElement from "./mountElement";
 import createDOMElement from "./createDOMElement";
 
 export default function mountNativeElement(virtualDOM, container) {
