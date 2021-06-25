@@ -1,4 +1,4 @@
-# 一、实现简单文本节点的更新
+# 一、DOM 更新——简单文本节点的更新
 
 ## 1.src/index.js
 
@@ -110,6 +110,154 @@ export default function diff(virtualDOM, container, oldDOM) {
       diff(child, oldDOM, oldDOM.childNodes[i]);
     });
   }
+}
+
+```
+
+# 二、DOM 更新——节点类型不相同
+
+```
+export default function diff(virtualDOM, container, oldDOM) {
+  const oldVirtualDOM = oldDOM && oldDOM._virtualDOM;
+  // 判断oldDOM是否存在
+  if (!oldDOM) {...} else if (oldVirtualDOM && virtualDOM.type === oldVirtualDOM.type){...} else if(
+    virtualDOM.type !== oldVirtualDOM.type &&
+    typeof virtualDOM.type !== "function"
+  ) {
+    const newElement = createDOMElement(virtualDOM);
+    oldDOM.parentNode.replaceChild(newElement, oldDOM);
+  }
+}
+```
+
+# 三、DOM 更新——删除属性，或其他属性的更新
+
+```
+export default function diff(virtualDOM, container, oldDOM) {
+  const oldVirtualDOM = oldDOM && oldDOM._virtualDOM;
+  // 判断oldDOM是否存在
+  if (!oldDOM) {
+    mountElement(virtualDOM, container);
+  } else if (
+    virtualDOM.type !== oldVirtualDOM.type &&
+    typeof virtualDOM.type !== "function"
+  ) {
+    const newElement = createDOMElement(virtualDOM);
+    oldDOM.parentNode.replaceChild(newElement, oldDOM);
+  } else if (oldVirtualDOM && virtualDOM.type === oldVirtualDOM.type) {
+    if (virtualDOM.type === "text") {
+      // 更新内容
+      updateTextNode(virtualDOM, oldVirtualDOM, oldDOM);
+    } else {
+      // 更新元素属性
++     updateNodeElement(oldDOM, virtualDOM, oldVirtualDOM);
+    }
+    virtualDOM.children.forEach((child, i) => {
+      diff(child, oldDOM, oldDOM.childNodes[i]);
+    });
+  }
+}
+```
+
+```
+export default function updateNodeElement(
+  newElement,
+  virtualDOM,
+  oldVirtualDOM = {}
+) {
+  // 获取节点对应的属性对象
+  const newProps = virtualDOM.props || {};
+  const oldProps = oldVirtualDOM.props || {};
+
+  Object.keys(newProps).forEach((propName) => {
+    // 获取属性值
+    const newPropsValue = newProps[propName];
+    const oldPropsValue = oldProps[propName];
+    if (newPropsValue !== oldPropsValue) {
+      // 判断属性是否是事件属性 onClick => click
+      if (propName.slice(0, 2) === "on") {
+        // 事件名称
+        const eventName = propName.toLocaleLowerCase().slice(2);
+        // 为元素添加事件
+        newElement.addEventListener(eventName, newPropsValue);
+        if (oldPropsValue) {
+          newElement.removeEventListener(eventName, oldPropsValue);
+        }
+      } else if (propName === "value" || propName === "checked") {
+        newElement[propName] = newPropsValue;
+      } else if (propName !== "children") {
+        if (propName === "className") {
+          newElement.setAttribute("class", newPropsValue);
+        } else {
+          newElement.setAttribute(propName, newPropsValue);
+        }
+      }
+    }
+  });
+
+  // 判断属性被删除的情况
+  Object.keys(oldProps).forEach((propName) => {
+    const newPropsValue = newProps[propName];
+    const oldPropsValue = oldProps[propName];
+    if (!newPropsValue) {
+      // 属性被删除了
+      if (propName.slice(0, 2) === "on") {
+        const eventName = propName.toLowerCase().slice(2);
+        newElement.removeEventListener(eventName, oldPropsValue);
+      } else if (propName !== "children") {
+        newElement.removeAttribute(propName);
+      }
+    }
+  });
+}
+
+```
+
+# 三、DOM 更新——删除节点
+
+删除节点发生在节点更新以后并且发生在同一个父节点下的所有子节点身上。
+
+在节点更新完成以后，如果旧节点对象的数量多于新 virtualDOM 节点的数量，就说明有节点需要被删除
+
+## 1.更新 diff 方法
+
+由于删除节点发生在同一个父节点下的所有子节点身上，因此是更新节点类型相同的情况下（virtualDOM.type === oldVirtualDOM.type）
+
+```
+export default function diff(virtualDOM, container, oldDOM) {
+  const oldVirtualDOM = oldDOM && oldDOM._virtualDOM;
+  // 判断oldDOM是否存在
+  if (!oldDOM) {
+    mountElement(virtualDOM, container);
+  } else if (
+    virtualDOM.type !== oldVirtualDOM.type &&
+    typeof virtualDOM.type !== "function"
+  ) {...} else if (oldVirtualDOM && virtualDOM.type === oldVirtualDOM.type) {
+    ...
+
+    // 删除节点
+    // 获取旧节点
+    let oldChildNodes = oldDOM.childNodes;
+    if (oldChildNodes.length > virtualDOM.children.length) {
+      // 有节点需要被删除
+      for (
+        let i = oldChildNodes.length - 1;
+        i > virtualDOM.children.length;
+        i--
+      ) {
+        unmountNode(oldChildNodes[i]);
+      }
+    }
+  }
+}
+
+```
+
+## 2.新建 src/TReact/unmountNode.js
+
+```
+export default function unmountNode(node) {
+  node.remove();
 }
 
 ```
