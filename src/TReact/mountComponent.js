@@ -9,6 +9,9 @@ export default function mountComponent(virtualDOM, container) {
   if (isFunctionComponent(virtualDOM)) {
     // 函数组件
     nextVirtualDOM = buildFunctionComponent(virtualDOM);
+  } else {
+    // 类组件
+    nextVirtualDOM = buildClassComponent(virtualDOM);
   }
 
   if (isFunction(nextVirtualDOM)) {
@@ -26,4 +29,12 @@ function buildFunctionComponent(virtualDOM) {
   // 这是函数组件，即virtualDOM.type是一个函数，将函数组件的props值传入
   // 并且会返回一个新的virtualDOM，这个新的virtualDOM可能还是一个函数组件，也有可能是基本元素
   return virtualDOM.type(virtualDOM.props || {});
+}
+
+function buildClassComponent(virtualDOM) {
+  // 这里的参数virtualDOM.props，其实是传递给了类组件里的constructor
+  const component = new virtualDOM.type(virtualDOM.props || {});
+  // 通过实例对象去调用render函数
+  const nextVirtualDom = component.render();
+  return nextVirtualDom;
 }

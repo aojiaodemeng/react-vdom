@@ -34,4 +34,23 @@ function Demo() {
   return <div>Demo</div>;
 }
 
-TReact.render(<Heart title="hello title" />, root);
+// 定义Alert类组件时，它是Component的子类，可以在内部中调用父类，把this.props传递给父类，让父类去执行this.props=props
+//
+class Alert extends TReact.Component {
+  // 通过constructor拿到props
+  // 在buildClassComponent这个方法里，实例化时传递进来的
+  constructor(props) {
+    // 调用super方法将props传递给父类
+    super(props);
+  }
+  render() {
+    return (
+      <div>
+        hello Component
+        {this.props.name}
+        {this.props.age}
+      </div>
+    );
+  }
+}
+TReact.render(<Alert name="张三" age={20} />, root);
