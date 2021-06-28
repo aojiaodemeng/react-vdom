@@ -31,10 +31,13 @@ function buildFunctionComponent(virtualDOM) {
   return virtualDOM.type(virtualDOM.props || {});
 }
 
+// 处理类组件
 function buildClassComponent(virtualDOM) {
   // 这里的参数virtualDOM.props，其实是传递给了类组件里的constructor
   const component = new virtualDOM.type(virtualDOM.props || {});
   // 通过实例对象去调用render函数
   const nextVirtualDom = component.render();
+  // 用component属性保存组件的实例对象
+  nextVirtualDom.component = component;
   return nextVirtualDom;
 }

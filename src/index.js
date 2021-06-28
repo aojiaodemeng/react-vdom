@@ -35,8 +35,30 @@ const modifyDOM = (
   </div>
 );
 
-TReact.render(virtualDOM, root);
+class Alert extends TReact.Component {
+  constructor(props) {
+    super(props);
+    this.state = { title: "default title" };
+    this.handleClick = this.handleClick.bind(this);
+  }
+  handleClick() {
+    this.setState({ title: "changed title" });
+  }
+  render() {
+    return (
+      <div>
+        {this.props.name}
+        {this.props.age}
+        <div>
+          {this.state.title}
+          <button onClick={this.handleClick}>改变title</button>
+        </div>
+      </div>
+    );
+  }
+}
+TReact.render(<Alert />, root);
 
-setTimeout(() => {
-  TReact.render(modifyDOM, root);
-}, 2000);
+// setTimeout(() => {
+//   TReact.render(modifyDOM, root);
+// }, 2000);
