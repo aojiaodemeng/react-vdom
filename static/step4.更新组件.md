@@ -152,3 +152,69 @@ export default function mountNativeElement(virtualDOM, container, oldDOM) {
   ...
 }
 ```
+
+# 三、同一个组件的情况
+
+## 1.先在 Component 类中添加生命周期函数，子类要使用的话直接覆盖就可以
+
+```javascript
+// Component.js
+export default class Component {
+  // 生命周期函数
+  componentWillMount() {}
+  componentDidMount() {}
+  componentWillReceiveProps(nextProps) {}
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps != this.props || nextState != this.state;
+  }
+  componentWillUpdate(nextProps, nextState) {}
+  componentDidUpdate(prevProps, preState) {}
+  componentWillUnmount() {}
+}
+```
+
+## 2.diffComponent 里，增加同一个组件情况更新时调用 updateComponent 方法
+
+```javascript
+// diffComponent.js
+if (isSameComponent(virtualDOM, oldComponent)) {
+  // 属同一个组件 做组件更新
+  updateComponent(virtualDOM, oldComponent, oldDOM, container);
+}
+```
+
+## 3.新建 updateComponent 方法用于更新组件操作
+
+在 updateComponent 方法中调用组件的生命周期函数，更新组件获取最新 Virtual DOM，最终调用 diff 方法进行更新
+
+```javascript
+// updateComponent.js
+export default function updateComponent(
+  virtualDOM,
+  oldComponent,
+  oldDOM,
+  container
+) {
+  // 生命周期函数
+  oldComponent.componentWillReceiveProps(virtualDOM.props);
+  if (
+    // 调用 shouldComponentUpdate 生命周期函数判断是否要执行更新操作
+    oldComponent.shouldComponentUpdate(virtualDOM.props)
+  ) {
+    // 将未更新的 props 保存一份
+    let prevProps = oldComponent.props;
+    // 生命周期函数
+    oldComponent.componentWillUpdate(virtualDOM.props);
+    // 更新组件的 props 属性 updateProps 方法定义在 Component 类型
+    oldComponent.updateProps(virtualDOM.props);
+    // 因为组件的 props 已经更新 所以调用 render 方法获取最新的 Virtual DOM
+    const nextVirtualDOM = oldComponent.render();
+    // 将组件实例对象挂载到 Virtual DOM 身上
+    nextVirtualDOM.component = oldComponent;
+    // 调用diff方法更新视图
+    diff(nextVirtualDOM, container, oldDOM);
+    // 生命周期函数
+    oldComponent.componentDidUpdate(prevProps);
+  }
+}
+```

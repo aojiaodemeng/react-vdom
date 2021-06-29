@@ -44,6 +44,15 @@ class Alert extends TReact.Component {
   handleClick() {
     this.setState({ title: "changed title" });
   }
+  componentWillReceiveProps(nextProps) {
+    console.log("componentWillReceiveProps", nextProps);
+  }
+  componentWillUpdate() {
+    console.log("componentWillUpdate");
+  }
+  componentDidUpdate() {
+    console.log("componentDidUpdate");
+  }
   render() {
     return (
       <div>
@@ -66,6 +75,7 @@ class Alert1 extends TReact.Component {
   handleClick() {
     this.setState({ title: "changed title" });
   }
+
   render() {
     return (
       <div>
@@ -79,8 +89,8 @@ class Alert1 extends TReact.Component {
     );
   }
 }
-TReact.render(<Alert title="1" />, root);
+TReact.render(<Alert name="1" />, root);
 
 setTimeout(() => {
-  TReact.render(<Alert1 title="2" />, root);
+  TReact.render(<Alert name="2" />, root);
 }, 2000);

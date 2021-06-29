@@ -1,4 +1,5 @@
 import mountElement from "./mountElement";
+import updateComponent from "./updateComponent";
 export default function diffComponent(
   virtualDOM,
   oldComponent,
@@ -7,7 +8,7 @@ export default function diffComponent(
 ) {
   if (isSameComponent(virtualDOM, oldComponent)) {
     // 同一个组件，进行组件更新操作
-    console.log("sss1");
+    updateComponent(virtualDOM, oldComponent, oldDOM, container);
   } else {
     // 先删除原来的组件
     mountElement(virtualDOM, container, oldDOM);
