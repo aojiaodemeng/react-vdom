@@ -2,7 +2,7 @@ import isFunction from "./isFunction";
 import isFunctionComponent from "./isFunctionComponent";
 import mountNativeElement from "./mountNativeElement";
 
-export default function mountComponent(virtualDOM, container) {
+export default function mountComponent(virtualDOM, container, oldDOM) {
   let nextVirtualDOM = null;
 
   // 判断组件是类组件还是函数组件
@@ -16,12 +16,12 @@ export default function mountComponent(virtualDOM, container) {
 
   if (isFunction(nextVirtualDOM)) {
     // 函数组件返回的virtualDOM还是一个函数组件
-    mountComponent(nextVirtualDOM, container);
+    mountComponent(nextVirtualDOM, container, oldDOM);
   } else {
     // 函数组件返回的virtualDOM是一个基本元素（有可能是下面两种情况
     // <div> 基本元素 </div>
     // <div> 包含了函数组件 <Text /> </div>）
-    mountNativeElement(nextVirtualDOM, container);
+    mountNativeElement(nextVirtualDOM, container, oldDOM);
   }
 }
 

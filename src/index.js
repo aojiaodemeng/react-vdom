@@ -57,8 +57,30 @@ class Alert extends TReact.Component {
     );
   }
 }
-TReact.render(<Alert />, root);
+class Alert1 extends TReact.Component {
+  constructor(props) {
+    super(props);
+    this.state = { title: "default title" };
+    this.handleClick = this.handleClick.bind(this);
+  }
+  handleClick() {
+    this.setState({ title: "changed title" });
+  }
+  render() {
+    return (
+      <div>
+        {this.props.name}
+        {this.props.age}
+        <div>
+          {this.state.title}
+          <button onClick={this.handleClick}>dalskndkjan</button>
+        </div>
+      </div>
+    );
+  }
+}
+TReact.render(<Alert title="1" />, root);
 
-// setTimeout(() => {
-//   TReact.render(modifyDOM, root);
-// }, 2000);
+setTimeout(() => {
+  TReact.render(<Alert1 title="2" />, root);
+}, 2000);
