@@ -89,8 +89,28 @@ class Alert1 extends TReact.Component {
     );
   }
 }
-TReact.render(<Alert name="1" />, root);
 
-setTimeout(() => {
-  TReact.render(<Alert name="2" />, root);
-}, 2000);
+class DemoRef extends TReact.Component {
+  constructor(props) {
+    super(props);
+    this.handleClick = this.handleClick.bind(this);
+  }
+  handleClick() {
+    console.log(this.input.value);
+    console.log(this.alert);
+  }
+
+  componentDidMount() {
+    console.log("componentDidMount");
+  }
+  render() {
+    return (
+      <div>
+        <input type="text" ref={(input) => (this.input = input)} />
+        <button onClick={this.handleClick}>按钮</button>
+        <Alert name="2" ref={(alert) => (this.alert = alert)} />
+      </div>
+    );
+  }
+}
+TReact.render(<DemoRef />, root);

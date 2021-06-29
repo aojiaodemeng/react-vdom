@@ -4,7 +4,7 @@ import mountNativeElement from "./mountNativeElement";
 
 export default function mountComponent(virtualDOM, container, oldDOM) {
   let nextVirtualDOM = null;
-
+  let component = null;
   // 判断组件是类组件还是函数组件
   if (isFunctionComponent(virtualDOM)) {
     // 函数组件
@@ -12,6 +12,7 @@ export default function mountComponent(virtualDOM, container, oldDOM) {
   } else {
     // 类组件
     nextVirtualDOM = buildClassComponent(virtualDOM);
+    component = nextVirtualDOM.component;
   }
 
   if (isFunction(nextVirtualDOM)) {
@@ -22,6 +23,12 @@ export default function mountComponent(virtualDOM, container, oldDOM) {
     // <div> 基本元素 </div>
     // <div> 包含了函数组件 <Text /> </div>）
     mountNativeElement(nextVirtualDOM, container, oldDOM);
+  }
+
+  if (component) {
+    if (component.props && component.props.ref) {
+      component.props.ref(component);
+    }
   }
 }
 
