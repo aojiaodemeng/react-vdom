@@ -113,4 +113,39 @@ class DemoRef extends TReact.Component {
     );
   }
 }
-TReact.render(<DemoRef />, root);
+
+class KeyDemo extends TReact.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      persons: [
+        { id: 1, name: "name1" },
+        { id: 2, name: "name2" },
+        { id: 3, name: "name3" },
+        { id: 4, name: "name4" },
+      ],
+    };
+    this.handleClick = this.handleClick.bind(this);
+  }
+  handleClick() {
+    const newState = JSON.parse(JSON.stringify(this.state));
+    // 此行代码调试key能找到（元素调换了位置）的情况
+    // newState.persons.push(newState.persons.shift());
+    // 此行代码调试key不能找到（新增了元素）的情况
+    newState.persons.splice(1, 0, { id: 100, name: "name new" });
+    this.setState(newState);
+  }
+  render() {
+    return (
+      <div>
+        <ul>
+          {this.state.persons.map((person) => (
+            <li key={person.id}>{person.name}</li>
+          ))}
+        </ul>
+        <button onClick={this.handleClick}>按钮</button>
+      </div>
+    );
+  }
+}
+TReact.render(<KeyDemo />, root);
