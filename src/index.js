@@ -132,7 +132,9 @@ class KeyDemo extends TReact.Component {
     // 此行代码调试key能找到（元素调换了位置）的情况
     // newState.persons.push(newState.persons.shift());
     // 此行代码调试key不能找到（新增了元素）的情况
-    newState.persons.splice(1, 0, { id: 100, name: "name new" });
+    // newState.persons.splice(1, 0, { id: 100, name: "name new" });
+    // 此行代码调试删除节点的情况
+    newState.persons.pop();
     this.setState(newState);
   }
   render() {
