@@ -106,7 +106,7 @@ export default function createElement(type, props, ...children) {
 
 ## 2.创建外部方法 render 以及 内部方法 diff、mountElement、 mountNativeElement
 
-### 2-1.创建 TReact/render.js 文件，方法的作用就是将 VDom 转换成虚拟 dom
+### 2-1.创建 TReact/render.js 文件，方法的作用就是将 VDom 对象 转换成真实 dom 对象
 
 TReact/render.js
 

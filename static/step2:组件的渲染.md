@@ -64,11 +64,12 @@ export default function mountComponent(virtualDOM, container) {
 
   // 判断组件是类组件还是函数组件
   if (isFunctionComponent(virtualDOM)) {
-    // 函数组件
+    // 函数组件 调用 buildFunctionalComponent 方法处理函数组件
     nextVirtualDOM = buildFunctionComponent(virtualDOM);
   }
-
+  // 判断得到的 Virtual Dom 是否是组件
   if (isFunction(nextVirtualDOM)) {
+    // 如果是组件 继续调用 mountComponent 解剖组件
     mountComponent(nextVirtualDOM, container);
   } else {
     mountNativeElement(nextVirtualDOM, container);

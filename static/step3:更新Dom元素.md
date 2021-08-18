@@ -1,5 +1,17 @@
 # 一、DOM 更新——简单文本节点的更新
 
+在进行 Virtual DOM 比对时，需要用到更新后的 Virtual DOM 和更新前的 Virtual DOM，更新后的 Virtual DOM 目前我们可以通过 render 方法进行传递，现在的问题是更新前的 Virtual DOM 要如何获取呢？
+
+对于更新前的 Virtual DOM，对应的其实就是已经在页面中显示的真实 DOM 对象。既然是这样，那么我们在创建真实 DOM 对象时，就可以将 Virtual DOM 添加到真实 DOM 对象的属性中。在进行 Virtual DOM 对比之前，就可以通过真实 DOM 对象获取其对应的 Virtual DOM 对象了，其实就是通过 render 方法的第三个参数获取的，container.firstChild。
+
+## diff 方法-Virtual DOM 比对
+
+判断 oldVirtualDOM 是否存在， 如果存在则继续判断要对比的 Virtual DOM 类型是否相同，如果类型相同判断节点类型是否是文本，如果是文本节点对比，就调用 updateTextNode 方法（对比文本内容是否发生变化），如果是元素节点对比就调用 setAttributeForElement 方法（对比元素属性是否发生变化）,最上层元素对比完成以后还需要递归对比子元素。当对比的元素节点类型不同时，就不需要继续对比了，直接使用新的 Virtual DOM 创建 DOM 对象，用新的 DOM 对象直接替换旧的 DOM 对象，当前这种情况要将组件刨除，组件要被单独处理。删除节点发生在节点更新以后并且发生在同一个父节点下的所有子节点身上，在节点更新完成以后，如果旧节点对象的数量多于新 VirtualDOM 节点的数量，就说明有节点需要被删除。
+
+updateTextNode 方法用于对比文本节点内容是否发生变化，如果发生变化则更新真实 DOM 对象中的内容，既然真实 DOM 对象发生了变化，还要将最新的 Virtual DOM 同步给真实 DOM 对象。
+
+setAttributeForElement 方法用于设置/更新元素节点属性。思路是先分别获取更新后的和更新前的 Virtual DOM 中的 props 属性，循环新 Virtual DOM 中的 props 属性，通过对比看一下新 Virtual DOM 中的属性值是否发生了变化，如果发生变化 需要将变化的值更新到真实 DOM 对象中。再循环未更新前的 Virtual DOM 对象，通过对比看看新的 Virtual DOM 中是否有被删除的属性，如果存在删除的属性 需要将 DOM 对象中对应的属性也删除掉。
+
 ## 1.src/index.js
 
 ```
@@ -54,7 +66,7 @@ export default function render(
   virtualDOM,
   container,
   // oldDOM指向页面旧的dom对象，container就是指id为root的元素
-  // 因为jsx元素必须又一个父级，所以可以通过.firstChild方法获取
+  // 因为jsx元素必须有一个父级，所以可以通过.firstChild方法获取
   oldDOM = container.firstChild
 ) {
   diff(virtualDOM, container, oldDOM);
