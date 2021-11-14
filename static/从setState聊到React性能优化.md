@@ -89,7 +89,7 @@ increment(){
     })
 }
 ```
-
+![](./images/13.png)
 # React 更新机制
 
 已知 React 的渲染流程：JSX->虚拟 dom->真实 dom
