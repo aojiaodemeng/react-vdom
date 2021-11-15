@@ -41,7 +41,8 @@ Redux是一个用来管理数据状态的UI状态的JS应用工具。随着JavaS
 - 中间件是对dispatch方法的一个封装或升级（中间是指action和reducer的中间），中间件（以redux-thunk为例）会根据所传的参数的不同执行不同的事情，若参数是对象的话会直接传给store，当传递给reducer的是一个函数的话，那么就先把函数执行结束，他会自己「吃掉」这个函数，不会传递给 reduces，防止 reduces 遇到一个函数而不知所措。redux-thunk中间件可以让action创建函数先不返回一个action对象，而是返回一个函数，函数传递一个参数(dispatch),在函数体内进行业务逻辑的封装。
 
 ![](./images/redux_flow.png)
-![](./images/redux_middleware_flow.png)
+![](./images/redux_middleware_flow.png)  
+![](./images/redux_flow2.png)  
 
 # 在React中页面重新加载时怎样保留数据？React 数据持久化有什么实践吗？
 ## React 数据持久化有什么实践吗？
